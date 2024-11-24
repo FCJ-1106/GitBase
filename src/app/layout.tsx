@@ -5,13 +5,15 @@ import { Metadata } from 'next'
 
 const inter = Inter({ subsets: ['latin'] })
 
-
+// 网站根布局
 export const metadata: Metadata = {
+  // 设置网站标题
   title: {
-    default: 'GitBase',
-    template: '%s | GitBase'
+    default: 'NHC Health Science',
+    template: '%s | NHC Health Science'
   },
-  description: 'Open source dynamic website without database, built with Next.js and GitHub API',
+  // 设置网站描述 TODO 没看到在哪儿用
+  description: 'Explore NHC Health Science for fun, popular science articles on health. Enjoy humorous tips that make learning about health easy for everyone!',
 }
 
 interface RootLayoutProps {

@@ -6,19 +6,34 @@ import { useRouter } from 'next/navigation';
 export default function LoginPage() {
   const [password, setPassword] = useState('');
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
-    });
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ password }),
+      });
 
-    if (response.ok) {
-      router.push('/admin');
-    } else {
-      alert('Invalid password');
+      if (response.ok) {
+        window.dispatchEvent(new Event('loginSuccess'));
+        
+        setTimeout(() => {
+          router.push('/');
+          setIsLoading(false);
+        }, 100);
+      } else {
+        setIsLoading(false);
+        alert('Invalid password');
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      setIsLoading(false);
     }
   };
 

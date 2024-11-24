@@ -7,10 +7,11 @@ import { Github } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
+// 设置全局页头
 const navItems = [
   { path: '/', label: 'Home' },
-  { path: '/resources', label: 'Resources' },
   { path: '/posts', label: 'Articles' },
+  { path: '/resources', label: 'Resources' },
 ]
 
 export function Navigation() {
@@ -19,27 +20,37 @@ export function Navigation() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
+  const checkLoginStatus = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/check-auth', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      setIsLoggedIn(data.isLoggedIn);
+    } catch (error) {
+      console.error('Failed to check auth status:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 监听自定义事件
   useEffect(() => {
-    let isMounted = true;
-    const checkLoginStatus = async () => {
-      if (!isMounted) return;
-      setIsLoading(true);
-      try {
-        const response = await fetch('/api/check-auth');
-        const data = await response.json();
-        if (isMounted) setIsLoggedIn(data.isLoggedIn);
-      } catch (error) {
-        console.error('Failed to check auth status:', error);
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
+    const handleLoginSuccess = () => {
+      checkLoginStatus();
     };
 
-    checkLoginStatus();
+    window.addEventListener('loginSuccess', handleLoginSuccess);
 
     return () => {
-      isMounted = false;
+      window.removeEventListener('loginSuccess', handleLoginSuccess);
     };
+  }, []);
+
+  // 初始检查登录状态
+  useEffect(() => {
+    checkLoginStatus();
   }, []);
 
   const handleLogout = async () => {
@@ -57,7 +68,8 @@ export function Navigation() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex gap-6 md:gap-10">
           <Link href="/" className="flex items-center space-x-2">
-            <span className="inline-block font-bold">GitBase</span>
+            {/* 隐藏NHC链接，用图标哦代替 */}
+            <span className="inline-block font-bold">NHC</span>
           </Link>
           <nav className="hidden md:flex gap-6">
             {navItems.map((item) => (
@@ -75,15 +87,6 @@ export function Navigation() {
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          <Link
-            href="https://github.com/qiayue/gitbase"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <Github className="h-5 w-5" />
-            <span className="sr-only">GitHub</span>
-          </Link>
           {!isLoading && (
             isLoggedIn ? (
               <>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ export default function ArticleEditor() {
   const [article, setArticle] = useState({ title: '', description: '', content: '', path: '' });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const searchParams = useSearchParams();
   const path = searchParams.get('path');
 
@@ -45,6 +46,59 @@ export default function ArticleEditor() {
     setArticle({ ...article, [name]: value });
   };
 
+  // 处理粘贴事件
+  const handlePaste = useCallback(async (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let item of items) {
+      if (item.type.indexOf('image') === 0) {
+        e.preventDefault();
+        setUploadingImage(true);
+
+        try {
+          const file = item.getAsFile();
+          const formData = new FormData();
+          formData.append('image', file);
+
+          // 上传图片到服务器
+          const response = await fetch('/api/upload-image', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to upload image');
+          }
+
+          const { imageUrl } = await response.json();
+
+          // 在光标位置插入 Markdown 图片语法
+          const textarea = e.target;
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          const content = article.content;
+          const newContent = 
+            content.substring(0, start) +
+            `![image](${imageUrl})` +
+            content.substring(end);
+
+          setArticle(prev => ({
+            ...prev,
+            content: newContent
+          }));
+
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          alert('Failed to upload image. Please try again.');
+        } finally {
+          setUploadingImage(false);
+        }
+      }
+    }
+  }, [article.content]);
+
+  // 保存文章
   const handleSave = async () => {
     try {
       const response = await fetch('/api/articles', {
@@ -79,14 +133,30 @@ export default function ArticleEditor() {
         onChange={handleInputChange}
         placeholder="Article Description"
       />
-      <Textarea
-        name="content"
-        value={article.content}
-        onChange={handleInputChange}
-        placeholder="Article Content"
-        rows={20}
-      />
-      <Button onClick={handleSave}>Save Article</Button>
+      <div className="relative">
+        <Textarea
+          name="content"
+          value={article.content}
+          onChange={handleInputChange}
+          onPaste={handlePaste}
+          placeholder="Article Content (支持粘贴图片)"
+          rows={20}
+          className="font-mono"
+        />
+        {uploadingImage && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+            <div className="text-sm text-gray-600">Uploading image...</div>
+          </div>
+        )}
+      </div>
+      <div className="flex gap-2">
+        <Button onClick={handleSave} disabled={uploadingImage}>
+          {uploadingImage ? 'Uploading...' : 'Save Article'}
+        </Button>
+        <p className="text-sm text-gray-500 mt-2">
+          提示：可以直接粘贴图片到编辑器中
+        </p>
+      </div>
     </div>
   );
 }

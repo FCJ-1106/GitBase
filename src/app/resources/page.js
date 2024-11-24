@@ -8,7 +8,7 @@ export const metadata = {
   description: 'Explore our curated list of resources for web development, GitHub, and more.',
 }
 
-
+// 设置Resources页面元数据
 export default function Resources() {
   const resourcesPath = path.join(process.cwd(), 'data', 'json', 'resources.json');
   const resources = JSON.parse(fs.readFileSync(resourcesPath, 'utf8'));

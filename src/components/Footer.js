@@ -1,6 +1,7 @@
 // components/Footer.js
 import Link from 'next/link';
 
+// 设置统一页尾Footer元数据
 export function Footer() {
   return (
     <footer className="bg-gray-100 border-t border-gray-200">
