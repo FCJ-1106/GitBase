@@ -3,7 +3,7 @@
     "title": "测试文章",
     "description": "测试1111111222222",
     "date": "2024-11-24T03:37:07.735Z",
-    "lastModified": "2024-11-24T11:31:41Z",
+    "lastModified": "2024-11-24T12:32:45Z",
     "path": "data/md/22.md"
   },
   {
@@ -40,12 +40,5 @@
     "date": "2024-08-16T03:57:46.153Z",
     "lastModified": "2024-08-16T03:57:46Z",
     "path": "data/md/how-to-contributing-to-gitbase.md"
-  },
-  {
-    "title": "Managing Articles in GitBase Admin Panel",
-    "description": "This guide will walk you through the process of viewing, editing, and creating new articles using the admin panel.",
-    "date": "2024-08-11T13:16:44.231Z",
-    "lastModified": "2024-08-11T13:16:44Z",
-    "path": "data/md/managing-articles.md"
   }
 ]
